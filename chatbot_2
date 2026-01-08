@@ -1,0 +1,75 @@
+import streamlit as st
+
+# Chatbot logic
+def chatbot(user_input):
+    user_input = user_input.lower()
+
+    if "timing" in user_input or "hours" in user_input:
+        return "Our institute is open from 9:00 AM to 5:00 PM, Monday to Friday."
+
+    elif "closing" in user_input:
+        return "The institute closes at 5:00 PM."
+
+    elif "fees" in user_input:
+        return "The course fees range from $500 to $2000 depending on the program."
+
+    elif "admission" in user_input:
+        return "Admissions are open throughout the year. You can apply online or visit the campus."
+
+    elif "contact" in user_input or "phone" in user_input:
+        return "You can contact us at +1-234-567-890."
+
+    elif "email" in user_input:
+        return "Our email address is info@institute.edu."
+
+    elif "address" in user_input or "location" in user_input:
+        return "We are located at 123 Main Street, City Center."
+
+    elif "courses" in user_input:
+        return "We offer courses in Computer Science, Data Science, AI, and Business Management."
+
+    elif "duration" in user_input:
+        return "Course duration varies from 3 months to 1 year."
+
+    elif "eligibility" in user_input:
+        return "Minimum eligibility is a high school diploma or equivalent."
+
+    elif "payment" in user_input:
+        return "We accept cash, credit/debit cards, and online transfers."
+
+    elif "refund" in user_input:
+        return "Refunds are available within 7 days of enrollment as per policy."
+
+    elif "online" in user_input:
+        return "Yes, we offer both online and offline classes."
+
+    elif "faculty" in user_input or "teachers" in user_input:
+        return "Our faculty members are industry professionals with 5+ years of experience."
+
+    elif "placement" in user_input or "job" in user_input:
+        return "Yes, we provide placement assistance and career guidance."
+
+    else:
+        return "Sorry, I couldn't understand your question. Please ask about institute-related information."
+
+
+# Streamlit UI
+st.set_page_config(page_title="Institute FAQ Chatbot")
+
+st.title("🏫 Institute FAQ Chatbot")
+st.write("Ask any question about the institute (timings, fees, admission, etc.)")
+
+# Input box
+user_input = st.text_input("You:")
+
+# Button
+if st.button("Ask"):
+    if user_input.strip() != "":
+        response = chatbot(user_input)
+        st.success(response)
+    else:
+        st.warning("Please enter a question.")
+
+# Footer
+st.markdown("---")
+st.caption("Rule-Based Chatbot using Streamlit")
