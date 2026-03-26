@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Institute AI Chatbot</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Chat Box */
+.chat-box {
+    width: 420px;
+    height: 650px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    padding: 15px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Chat Area */
+.chat-container {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Messages */
+.message {
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 12px;
+    max-width: 70%;
+}
+
+.user {
+    background: #4a90e2;
+    color: white;
+    margin-left: auto;
+}
+
+.bot {
+    background: #e3f2fd;
+}
+
+/* Input */
+.input-area {
+    display: flex;
+    padding: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+}
+
+button {
+    margin-left: 5px;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: #4a90e2;
+    color: white;
+    cursor: pointer;
+}
+
+.quick-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px;
+}
+
+.quick-buttons button {
+    flex: 1;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-box">
+
+<div class="header">🎓 Institute Assistant</div>
+
+<div id="chat" class="chat-container"></div>
+
+<div class="quick-buttons">
+    <button onclick="quickMsg('timings')">Timings</button>
+    <button onclick="quickMsg('fees')">Fees</button>
+    <button onclick="quickMsg('courses')">Courses</button>
+    <button onclick="quickMsg('admission')">Admission</button>
+</div>
+
+<div class="input-area">
+    <input id="input" placeholder="Ask something...">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="startVoice()">🎤</button>
+    <button onclick="clearChat()">🗑</button>
+</div>
+
+</div>
+
+<script>
+
+let lastTopic = "";
+let step = "";
+
+// Load chat history
+window.onload = () => {
+    let saved = localStorage.getItem("chat");
+    if (saved) {
+        document.getElementById("chat").innerHTML = saved;
+    } else {
+        addMessage("Hello! How can I help you today?", "bot");
+    }
+};
+
+// Save chat
+function saveChat() {
+    localStorage.setItem("chat", document.getElementById("chat").innerHTML);
+}
+
+// Send Message
+function sendMessage() {
+    let input = document.getElementById("input");
+    let text = input.value.trim();
+
+    if (text === "") return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    showTyping();
+
+    setTimeout(() => {
+        removeTyping();
+        let reply = getResponse(text);
+        addMessage(reply, "bot");
+    }, 400);
+}
+
+// Enter key
+document.getElementById("input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+// Quick buttons
+function quickMsg(text) {
+    addMessage(text, "user");
+    let reply = getResponse(text);
+    addMessage(reply, "bot");
+}
+
+// Typing
+function showTyping() {
+    let chat = document.getElementById("chat");
+    let typing = document.createElement("div");
+    typing.id = "typing";
+    typing.innerText = "Bot is typing...";
+    chat.appendChild(typing);
+}
+
+function removeTyping() {
+    let t = document.getElementById("typing");
+    if (t) t.remove();
+}
+
+// Add message
+function addMessage(text, type) {
+    let chat = document.getElementById("chat");
+
+    let msg = document.createElement("div");
+    msg.classList.add("message", type);
+
+    let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    msg.innerHTML = text + "<br><small>" + time + "</small>";
+
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+
+    saveChat();
+}
+
+// Clear chat
+function clearChat() {
+    document.getElementById("chat").innerHTML = "";
+    localStorage.removeItem("chat");
+}
+
+// Voice input
+function startVoice() {
+    let recognition = new webkitSpeechRecognition();
+    recognition.onresult = function(event) {
+        document.getElementById("input").value = event.results[0][0].transcript;
+        sendMessage();
+    };
+    recognition.start();
+}
+
+// Brain
+function getResponse(msg) {
+    msg = msg.toLowerCase();
+
+    if (msg.includes("hi") || msg.includes("hello")) {
+        return "Hello! 👋";
+    }
+
+    if (msg.includes("fee")) {
+        lastTopic = "fee";
+        return "💰 Fees range ₹50k–₹2L";
+    }
+
+    if (msg.includes("scholarship") && lastTopic === "fee") {
+        return "🎖 Scholarships up to 50% available";
+    }
+
+    if (msg.includes("course")) {
+        step = "course";
+        return "Which course? AI / Web / Data";
+    }
+
+    if (step === "course") {
+        step = "";
+        return "Details about " + msg + " course";
+    }
+
+    if (msg.includes("time")) {
+        return "🕒 9 AM – 5 PM (Mon–Fri)";
+    }
+
+    if (msg.includes("contact")) {
+        return "📞 0712 619 2403";
+    }
+
+    if (msg.includes("hostel")) {
+        return "🏠 Hostel available";
+    }
+
+    return "Try asking about fees, courses, or admission.";
+}
+
+</script>
+
+</body>
+</html>
